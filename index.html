@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบลงทะเบียนนักศึกษา</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="card">
+
+    <div class="stepper">
+      <span class="dot done" data-step="1"></span>
+      <span class="dot" data-step="2"></span>
+      <span class="dot" data-step="3"></span>
+    </div>
+
+    <!-- Screen 1: Registration form -->
+    <section class="screen active" id="screen-register">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#5B4FCF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 2 9 2 12 0v-5"/>
+        </svg>
+      </div>
+      <h1>ระบบลงทะเบียนนักศึกษา</h1>
+      <p class="sub">กรอกข้อมูลเพื่อลงทะเบียนเข้าชั้นเรียน</p>
+      <p class="meta">โปรเจคนักศึกษา วิชาการพัฒนาเว็บไซต์</p>
+
+      <div class="field">
+        <label for="reg-email">อีเมลวิทยาลัย</label>
+        <input type="email" id="reg-email" placeholder="email@minburi.ac.th">
+      </div>
+
+      <div class="field">
+        <label for="reg-name">ชื่อ - นามสกุล</label>
+        <input type="text" id="reg-name" placeholder="">
+      </div>
+
+      <div class="row-2">
+        <div>
+          <label for="reg-id">รหัสนักศึกษา</label>
+          <input type="text" id="reg-id" placeholder="672191">
+        </div>
+        <div>
+  <label for="reg-room">ห้องเรียน</label>
+  <select id="reg-room">
+    <option value="">-- เลือกห้องเรียน --</option>
+    <optgroup label="ปวช.">
+      <option value="ปวช.1/1">ปวช.1/1</option>
+      <option value="ปวช.1/2">ปวช.1/2</option>
+      <option value="ปวช.2/1">ปวช.2/1</option>
+      <option value="ปวช.2/2">ปวช.2/2</option>
+      <option value="ปวช.3/1">ปวช.3/1</option>
+      <option value="ปวช.3/2">ปวช.3/2</option>
+    </optgroup>
+    <optgroup label="ปวส.">
+      <option value="ปวส.1/1">ปวส.1/1</option>
+      <option value="ปวส.1/2">ปวส.1/2</option>
+      <option value="ปวส.2/1">ปวส.2/1</option>
+      <option value="ปวส.2/2">ปวส.2/2</option>
+    </optgroup>
+  </select>
+</div>
+      </div>
+
+      <p class="error" id="register-error"></p>
+
+      <button class="btn-primary" id="btn-register">ลงทะเบียน</button>
+     
+    </section>
+
+    <!-- Screen 2: OTP verification -->
+    <section class="screen" id="screen-otp">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#5B4FCF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="11" width="14" height="10" rx="2"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+        </svg>
+      </div>
+      <h1>ยืนยันตัวตน</h1>
+      <p class="sub">กรอกรหัส OTP 6 หลักที่ส่งไปยัง<br><span class="email-highlight" id="otp-email-target">name@college.ac.th</span></p>
+      <p class="meta">&nbsp;</p>
+
+      <div class="otp-row" id="otp-inputs">
+        <input type="text" maxlength="1" inputmode="numeric">
+        <input type="text" maxlength="1" inputmode="numeric">
+        <input type="text" maxlength="1" inputmode="numeric">
+        <input type="text" maxlength="1" inputmode="numeric">
+        <input type="text" maxlength="1" inputmode="numeric">
+        <input type="text" maxlength="1" inputmode="numeric">
+      </div>
+
+      <label class="remember">
+        <input type="checkbox" id="remember-device" checked>
+        จดจำอุปกรณ์และอีเมลนี้ไว้ 30 วัน
+      </label>
+
+      <p class="error" id="otp-error"></p>
+
+      <button class="btn-primary" id="btn-verify">ยืนยัน</button>
+      <p class="resend">ไม่ได้รับรหัส? <a href="#" id="btn-resend">ส่งอีกครั้ง</a></p>
+    </section>
+
+    <!-- Screen 3: Success -->
+    <section class="screen" id="screen-success">
+      <div class="badge success-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h1>ลงทะเบียนสำเร็จ</h1>
+      <p class="sub">ยืนยันตัวตนเรียบร้อยแล้ว</p>
+      <p class="meta">&nbsp;</p>
+
+      <div class="device-card" id="device-remembered">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16" rx="2"/>
+          <path d="M9 9h.01M9 12h.01M9 15h6"/>
+        </svg>
+        <div>ระบบจดจำอุปกรณ์นี้แล้ว<br><strong>เข้าสู่ระบบครั้งหน้าไม่ต้องกรอก OTP อีก</strong></div>
+      </div>
+
+      <button class="btn-primary" id="btn-continue">เข้าสู่ระบบ</button>
+    </section>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
