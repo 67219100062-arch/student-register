@@ -1,13 +1,20 @@
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwh4kBofGBfD2ue_xDPeWwpk9d4WThWq6xx1NYQas2unkyyLanOaXBupZjdXbHnca1x/exec";
-const ESP32_URL = "http://192.168.x.x/open"; // ← เปลี่ยนเป็น IP จริงของ ESP32
+const ESP32_URL = "http://10.238.9.240";
 
+// ============================================
+// เปิดกลอน ESP32
+// ============================================
 async function openDoor() {
+  console.log("กำลังเรียก:", `${ESP32_URL}/open`);
   try {
-    const res = await fetch(ESP32_URL);
-    const data = await res.json();
-    if (data.status === "ok") console.log("เปิดกลอนสำเร็จ!");
-  } catch (e) {
-    console.log("เปิดกลอนไม่ได้:", e);
+    const res = await fetch(`${ESP32_URL}/open`, { method: "GET" });
+    console.log("Status:", res.status);
+    const text = await res.text();
+    console.log("Response:", text);
+    return text.includes("ok");
+  } catch (err) {
+    console.error("ESP32 Error:", err);
+    return false;
   }
 }
 
@@ -31,12 +38,14 @@ function goToScreen(screenId, step) {
 window.addEventListener("DOMContentLoaded", () => {
   const rememberedEmail = localStorage.getItem("rememberedEmail");
   const rememberedUntil = localStorage.getItem("rememberedUntil");
-  const deviceId = getDeviceId();
+  getDeviceId();
+
   if (rememberedEmail && rememberedUntil && Date.now() < parseInt(rememberedUntil)) {
     document.getElementById("reg-email").value = rememberedEmail;
   }
 });
 
+// OTP inputs
 document.querySelectorAll("#otp-inputs input").forEach((input, i, inputs) => {
   input.addEventListener("input", () => {
     input.value = input.value.replace(/\D/, "");
@@ -47,6 +56,9 @@ document.querySelectorAll("#otp-inputs input").forEach((input, i, inputs) => {
   });
 });
 
+// ============================================
+// STEP 1: ลงทะเบียน
+// ============================================
 document.getElementById("btn-register").addEventListener("click", async () => {
   const email     = document.getElementById("reg-email").value.trim();
   const name      = document.getElementById("reg-name").value.trim();
@@ -59,11 +71,6 @@ document.getElementById("btn-register").addEventListener("click", async () => {
 
   if (!email || !name || !studentId || !room) {
     errEl.textContent = "กรุณากรอกข้อมูลให้ครบทุกช่อง";
-    return;
-  }
-
-  if (!email.endsWith("@minburi.ac.th")) {
-    errEl.textContent = "❌ กรุณาใช้อีเมลวิทยาลัยเทคนิคมีนบุรีเท่านั้น (@minburi.ac.th)";
     return;
   }
 
@@ -84,7 +91,10 @@ document.getElementById("btn-register").addEventListener("click", async () => {
     } catch (e) {
       console.log("saveDirectly error:", e);
     }
-    await openDoor(); // เปิดกลอน
+
+    // เปิดกลอนทันทีสำหรับอุปกรณ์ที่จำไว้แล้ว
+    await openDoor();
+
     document.getElementById("device-remembered").style.display = "flex";
     goToScreen("screen-success", 3);
     return;
@@ -100,6 +110,7 @@ document.getElementById("btn-register").addEventListener("click", async () => {
       body: JSON.stringify({ action: "register", email, name, studentId, room, deviceId })
     });
     const data = await res.json();
+    console.log("register =", data);
 
     if (data.success) {
       localStorage.setItem("pendingStudentId", studentId);
@@ -116,6 +127,9 @@ document.getElementById("btn-register").addEventListener("click", async () => {
   }
 });
 
+// ============================================
+// STEP 2: ยืนยัน OTP
+// ============================================
 document.getElementById("btn-verify").addEventListener("click", async () => {
   const inputs    = document.querySelectorAll("#otp-inputs input");
   const otp       = [...inputs].map(i => i.value).join("");
@@ -139,9 +153,15 @@ document.getElementById("btn-verify").addEventListener("click", async () => {
       body: JSON.stringify({ action: "verifyOTP", studentId, otp })
     });
     const data = await res.json();
+    console.log("verifyOTP =", data);
 
     if (data.success) {
-      await openDoor(); // เปิดกลอน
+      // ✅ เรียก openDoor() จริงๆ
+      const opened = await openDoor();
+      if (!opened) {
+        console.warn("เปิดกลอนไม่สำเร็จ แต่ OTP ผ่านแล้ว");
+      }
+
       const remember = document.getElementById("remember-device").checked;
       if (remember) {
         const email = document.getElementById("reg-email").value.trim();
@@ -151,6 +171,7 @@ document.getElementById("btn-verify").addEventListener("click", async () => {
       } else {
         document.getElementById("device-remembered").style.display = "none";
       }
+
       localStorage.removeItem("pendingStudentId");
       goToScreen("screen-success", 3);
     } else {
@@ -164,6 +185,7 @@ document.getElementById("btn-verify").addEventListener("click", async () => {
   }
 });
 
+// ส่ง OTP อีกครั้ง
 document.getElementById("btn-resend").addEventListener("click", async (e) => {
   e.preventDefault();
   goToScreen("screen-register", 1);
