@@ -27,13 +27,15 @@ function goToScreen(screenId, step) {
 }
 
 async function requestApi(payload) {
-  const url = APPS_SCRIPT_URL + "?callback=?";
-  const response = await fetch(APPS_SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(payload),
-    redirect: "follow",
-    mode: "no-cors"
+  const params = new URLSearchParams({
+    data: JSON.stringify(payload)
   });
+  const response = await fetch(`${APPS_SCRIPT_URL}?${params}`, {
+    redirect: "follow"
+  });
+  const text = await response.text();
+  try { return JSON.parse(text); } catch { throw new Error("Invalid JSON"); }
+}
   return { success: true };
 }
   });
