@@ -29,7 +29,6 @@ function goToScreen(screenId, step) {
 async function requestApi(payload) {
   const response = await fetch(APPS_SCRIPT_URL, {
     method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify(payload),
     redirect: "follow"
   });
@@ -37,7 +36,7 @@ async function requestApi(payload) {
   const text = await response.text();
   try { return JSON.parse(text); } catch { throw new Error("API returned invalid JSON"); }
 }
-
+  
 async function openDoor() {
   // เขียนคำสั่ง "เปิดประตู" ลง Firebase Realtime Database
   // ESP32 จะ poll ค่านี้อยู่ตลอด แล้วเปิดประตูเองเมื่อเห็นค่าเป็น true
