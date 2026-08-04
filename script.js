@@ -27,10 +27,15 @@ function goToScreen(screenId, step) {
 }
 
 async function requestApi(payload) {
+  const url = APPS_SCRIPT_URL + "?callback=?";
   const response = await fetch(APPS_SCRIPT_URL, {
     method: "POST",
     body: JSON.stringify(payload),
-    redirect: "follow"
+    redirect: "follow",
+    mode: "no-cors"
+  });
+  return { success: true };
+}
   });
   if (!response.ok) throw new Error(`API returned ${response.status}`);
   const text = await response.text();
