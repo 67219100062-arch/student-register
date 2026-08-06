@@ -168,4 +168,3 @@ document.getElementById("btn-continue").addEventListener("click", () => {
   clearForm();
   goToScreen("screen-register", 1);
 });
-// force redeploy
